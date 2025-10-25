@@ -13,3 +13,14 @@ yarn-error.log*
 
 # env & secrets (never commit)
 .env
+
+# Development environment files - Security
+.dev.vars
+.env.local
+.env.production
+.env.*.local
+*.vars
+
+# Gitleaks reports
+*-leaks.json
+gitleaks.exe
