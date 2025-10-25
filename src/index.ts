@@ -324,7 +324,7 @@ async function handleStripeCheckout(request: Request, env: Env): Promise<Respons
       billingCycle: string
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with 3-day trial
     const session = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
@@ -339,6 +339,8 @@ async function handleStripeCheckout(request: Request, env: Env): Promise<Respons
         'client_reference_id': body.userId,
         'line_items[0][price]': body.priceId,
         'line_items[0][quantity]': '1',
+        'subscription_data[trial_period_days]': '3',
+        'payment_method_collection': 'always',
         'metadata[userId]': body.userId,
         'metadata[planName]': body.planName,
         'metadata[billingCycle]': body.billingCycle
@@ -520,15 +522,18 @@ export default {
         response = await proxyReq(upstream, { Authorization: `Bearer ${env.POLYGON_KEY}` }, `pg:${path}${url.search}`, env)
       } else if (url.pathname.startsWith('/api/alpaca-stocks/')) {
         const path = url.pathname.replace('/api/alpaca-stocks', '')
+        // Use Alpaca Market Data API for stock data
         const upstream = `https://data.alpaca.markets${path}${url.search}`
         response = await proxyReq(upstream, { 'APCA-API-KEY-ID': env.ALPACA_KEY, 'APCA-API-SECRET-KEY': env.ALPACA_SECRET }, `ap-stocks:${path}${url.search}`, env)
       } else if (url.pathname.startsWith('/api/alpaca-crypto/')) {
         const path = url.pathname.replace('/api/alpaca-crypto', '')
+        // Use Alpaca Market Data API for crypto data
         const upstream = `https://data.alpaca.markets${path}${url.search}`
         response = await proxyReq(upstream, { 'APCA-API-KEY-ID': env.ALPACA_KEY, 'APCA-API-SECRET-KEY': env.ALPACA_SECRET }, `ap-crypto:${path}${url.search}`, env)
       } else if (url.pathname.startsWith('/api/alpaca/')) {
         const path = url.pathname.replace('/api/alpaca', '')
-        const upstream = `https://broker-api.sandbox.alpaca.markets${path}${url.search}`
+        // Use Alpaca Trading API for account/trading operations
+        const upstream = `https://api.alpaca.markets${path}${url.search}`
         response = await proxyReq(upstream, { 'APCA-API-KEY-ID': env.ALPACA_KEY, 'APCA-API-SECRET-KEY': env.ALPACA_SECRET }, `ap:${path}${url.search}`, env)
       } else if (url.pathname.startsWith('/api/binance/')) {
         const path = url.pathname.replace('/api/binance', '')
