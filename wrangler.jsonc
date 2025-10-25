@@ -1,0 +1,12 @@
+{
+  // TradeFlows Pro Enhanced API Proxy
+  "name": "tf-proxy",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-10",
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "5961b257ed9547639474120d87aee5f9"
+    }
+  ]
+}

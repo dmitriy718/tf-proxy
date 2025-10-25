@@ -1,0 +1,7 @@
+body { margin: 0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial; }
+.app { display: grid; grid-template-rows: auto 1fr auto; min-height: 100vh; }
+header, footer { padding: 12px 16px; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+header { position: sticky; top: 0; background: white; z-index: 10; }
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chart-wrap { height: calc(100vh - 120px); padding: 8px; }
+.badge { padding: 2px 6px; border-radius: 999px; border: 1px solid #0002; font-size: 12px; }
