@@ -518,6 +518,14 @@ export default {
         const path = url.pathname.replace('/api/polygon', '')
         const upstream = `https://api.polygon.io${path}${url.search}`
         response = await proxyReq(upstream, { Authorization: `Bearer ${env.POLYGON_KEY}` }, `pg:${path}${url.search}`, env)
+      } else if (url.pathname.startsWith('/api/alpaca-stocks/')) {
+        const path = url.pathname.replace('/api/alpaca-stocks', '')
+        const upstream = `https://data.alpaca.markets${path}${url.search}`
+        response = await proxyReq(upstream, { 'APCA-API-KEY-ID': env.ALPACA_KEY, 'APCA-API-SECRET-KEY': env.ALPACA_SECRET }, `ap-stocks:${path}${url.search}`, env)
+      } else if (url.pathname.startsWith('/api/alpaca-crypto/')) {
+        const path = url.pathname.replace('/api/alpaca-crypto', '')
+        const upstream = `https://data.alpaca.markets${path}${url.search}`
+        response = await proxyReq(upstream, { 'APCA-API-KEY-ID': env.ALPACA_KEY, 'APCA-API-SECRET-KEY': env.ALPACA_SECRET }, `ap-crypto:${path}${url.search}`, env)
       } else if (url.pathname.startsWith('/api/alpaca/')) {
         const path = url.pathname.replace('/api/alpaca', '')
         const upstream = `https://broker-api.sandbox.alpaca.markets${path}${url.search}`
