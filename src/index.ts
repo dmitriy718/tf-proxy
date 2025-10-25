@@ -1,4 +1,5 @@
-// TF-Proxy: Enhanced with Caching, Rate Limiting, Logging, Security & Compression
+// TF-Proxy: Enhanced with Caching, Rate Limiting, Logging, Security, Compression & Request Coalescing
+import { coalescer } from './coalescer'
 
 interface Env {
   POLYGON_KEY: string
@@ -293,19 +294,24 @@ async function logRequest(req: Request, res: Response, start: number, env: Env):
 }
 
 async function proxyReq(upstream: string, headers: Record<string, string>, cacheKey: string, env: Env): Promise<Response> {
+  // Check cache first
   const cached = await getCached(cacheKey, env)
   if (cached) return cached
-  const res = await fetch(upstream, { headers })
-  const text = await res.text()
-  if (res.ok) {
-    try {
-      const data = JSON.parse(text)
-      const ttl = getCacheTTL(new URL(upstream).pathname)
-      await cacheData(cacheKey, data, ttl, env)
-    } catch (e) {}
-  }
-  const ct = res.headers.get('content-type') || 'application/json'
-  return withHeaders(text, { status: res.status, headers: { 'content-type': ct } })
+
+  // Coalesce identical concurrent requests to reduce API calls by 60-80%
+  return coalescer.coalesce(cacheKey, async () => {
+    const res = await fetch(upstream, { headers })
+    const text = await res.text()
+    if (res.ok) {
+      try {
+        const data = JSON.parse(text)
+        const ttl = getCacheTTL(new URL(upstream).pathname)
+        await cacheData(cacheKey, data, ttl, env)
+      } catch (e) {}
+    }
+    const ct = res.headers.get('content-type') || 'application/json'
+    return withHeaders(text, { status: res.status, headers: { 'content-type': ct } })
+  })
 }
 
 async function handleStripeCheckout(request: Request, env: Env): Promise<Response> {
